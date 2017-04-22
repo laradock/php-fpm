@@ -1,8 +1,7 @@
-# Laradock's PHP-FPM Container Base Image
+# Laradock's PHP-FPM Base Image
 
-Visit the [Laradock](https://github.com/Laradock/laradock) repository.
+[Contribution Guide](http://laradock.io/contributing/#edit-base-image).
 
-## What is Laradock?
-Laradock is a Docker PHP development environment. It facilitate running PHP Apps on Docker.
+[Workspace Docker Hub Repository](https://hub.docker.com/r/laradock/php-fpm/)
 
-Laradock is configured to run Laravel Apps by default, and it can be modified to run all kinds of PHP Apps (Symfony, CodeIgniter, Wordpress, Drupal...).
+[Laradock Github Repository](https://github.com/Laradock/laradock).
