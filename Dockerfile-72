@@ -43,3 +43,6 @@ RUN apt-get update \
     --with-jpeg-dir=/usr/lib \
     --with-freetype-dir=/usr/include/freetype2 && \
     docker-php-ext-install gd
+
+  # Install the PHP zip extension
+  RUN pecl install zip
