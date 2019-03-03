@@ -6,7 +6,7 @@
 
 FROM php:7.2-fpm
 
-MAINTAINER Mahmoud Zalt <mahmoud@zalt.me>
+LABEL maintainer="Mahmoud Zalt <mahmoud@zalt.me>"
 
 #
 #--------------------------------------------------------------------------
