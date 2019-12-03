@@ -8,6 +8,9 @@ FROM php:5.6-fpm
 
 LABEL maintainer="Mahmoud Zalt <mahmoud@zalt.me>"
 
+# Set Environment Variables
+ENV DEBIAN_FRONTEND noninteractive
+
 #
 #--------------------------------------------------------------------------
 # Software's Installation
