@@ -10,6 +10,7 @@ env:
     - PHP_VERSION=71
     - PHP_VERSION=72
     - PHP_VERSION=73
+    - PHP_VERSION=74
 
 # Installing a newer Docker version
 before_install:
