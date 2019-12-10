@@ -41,6 +41,7 @@ RUN apt-get update && \
   && docker-php-ext-install pdo_pgsql \
   # Install the PHP gd library
   && docker-php-ext-configure gd \
-    --with-jpeg-dir=/usr/lib \
-    --with-freetype-dir=/usr/include/freetype2 && \
+    --prefix=/usr \
+    --with-jpeg \
+    --with-freetype && \
     docker-php-ext-install gd
