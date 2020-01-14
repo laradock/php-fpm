@@ -32,6 +32,7 @@ RUN set -xe && \
     libfreetype6-dev \
     libssl-dev \
     libmcrypt-dev \
+    libonig-dev \
   && rm -rf /var/lib/apt/lists/*
 
 
