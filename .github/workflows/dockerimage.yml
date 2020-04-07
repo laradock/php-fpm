@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: [56, 70, 71, 72, 73, 74]
+        phpversion: [56, 70, 71, 72, 73, 74]
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{php_version}} --tag laradock/php-fpm:$(date +%s)-${{php_version}}
+      run: docker build . --file Dockerfile-${{phpversion}} --tag laradock/php-fpm:$(date +%s)-${{php_version}}
