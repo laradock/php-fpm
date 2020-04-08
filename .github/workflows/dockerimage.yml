@@ -18,7 +18,7 @@ jobs:
         TAG_VERSION: ${{ matrix.php_version }}
 
     - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:$(date +%s)-$TAG_VERSION
+      run: docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:$(date +%s)-${TAG_VERSION}
       
     - name: show image list
       run: docker image ls
