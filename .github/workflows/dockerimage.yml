@@ -12,13 +12,10 @@ jobs:
         php_version: [56, 70, 71, 72, 73, 74]
     steps:
     - uses: actions/checkout@v2
-    - name: Tag
-      run: export TAG_VERSION=${TAG_VERSION:0:1}${TAG_VERSION:2:1}
+    - name: Build the Docker image
+      run: export TAG_VERSION=${TAG_VERSION:0:1}${TAG_VERSION:2:1} && docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:$(date +%s)-${TAG_VERSION}
       env:
         TAG_VERSION: ${{ matrix.php_version }}
-
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:$(date +%s)-${TAG_VERSION}
       
     - name: show image list
       run: docker image ls
