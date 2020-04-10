@@ -13,7 +13,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      run: export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:2:1} && docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:$(date +%s)-${TAG_VERSION}
+      run: export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1} && docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:$(date +%s)-${TAG_VERSION}
       env:
         PHP_VERSION: ${{ matrix.php_version }}
       
