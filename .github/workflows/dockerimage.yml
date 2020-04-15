@@ -1,17 +1,17 @@
 name: Docker Image CI
 
-on: push
+on:
+  push:
+    branches: master
+  schedule:
+  - cron: 0 0 * * 6
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     strategy:
       matrix:
         php_version: [56, 70, 71, 72, 73, 74]
-
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
