@@ -9,26 +9,30 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: [56, 70, 71, 72, 73, 74]
+        php_version: [74]
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
       env:
         PHP_VERSION: ${{ matrix.php_version }}
       run: |
-        export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1} && docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:latest-${TAG_VERSION}
-        env
+        export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1}
+        docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:latest-${TAG_VERSION}
       
     - name: show image list
       run: |
         docker image ls
-        env
 
     - name: Push image to Docker hub
       if: success()
-      uses: manusa/actions-publish-docker@master
-      with:
-        name: laradock/php-fpm
-        username: ${{ secrets.DOCKER_HUB_USER }}
-        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-        tag: "latest-${{ env.TAG_VERSION }}"
+      
+      run: |
+        docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin ${{ secrets.DOCKER_HUB_PASSWORD }}
+        docker push laradock/php-fpm:latest-${{ env.TAG_VERSION }}
+        docker logout
+
+#       with:
+#         name: laradock/php-fpm
+#         username: ${{ secrets.DOCKER_HUB_USER }}
+#         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+#         tag: "latest-${{ env.TAG_VERSION }}"
