@@ -19,3 +19,12 @@ jobs:
       
     - name: show image list
       run: docker image ls
+
+    - name: Push image to Docker hub
+      if: success()
+      uses: manusa/actions-publish-docker@master
+      with:
+        name: laradock/php-fpm
+        username: ${{ secrets.DOCKER_HUB_USER }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+	      tag: "latest-${{ env.TAG_VERSION }}"
