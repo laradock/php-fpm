@@ -30,7 +30,7 @@ jobs:
       run: |
         export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1}
         echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin
-        docker push laradock/php-fpm:latest-${{ env.TAG_VERSION }}
+        docker push laradock/php-fpm:latest-${TAG_VERSION}
         docker logout
 
 #       with:
