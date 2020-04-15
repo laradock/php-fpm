@@ -15,11 +15,13 @@ jobs:
     - name: Build the Docker image
       env:
         PHP_VERSION: ${{ matrix.php_version }}
-      run: export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1} && docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:latest-${TAG_VERSION}
+      run: |
+        export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1} && docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:latest-${TAG_VERSION}
         env | sort
       
     - name: show image list
-      run: docker image ls
+      run: |
+        docker image ls
         env | sort
 
     - name: Push image to Docker hub
