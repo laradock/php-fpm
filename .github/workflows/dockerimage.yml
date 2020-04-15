@@ -27,4 +27,4 @@ jobs:
         name: laradock/php-fpm
         username: ${{ secrets.DOCKER_HUB_USER }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-	      tag: "latest-${{ env.TAG_VERSION }}"
+        tag: "latest-${{ env.TAG_VERSION }}"
