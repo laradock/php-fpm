@@ -17,12 +17,12 @@ jobs:
         PHP_VERSION: ${{ matrix.php_version }}
       run: |
         export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1} && docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:latest-${TAG_VERSION}
-        env | sort
+        env
       
     - name: show image list
       run: |
         docker image ls
-        env | sort
+        env
 
     - name: Push image to Docker hub
       if: success()
