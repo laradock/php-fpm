@@ -33,6 +33,7 @@ RUN set -eux; \
             libpng-dev \
             libfreetype6-dev \
             libssl-dev \
+            libwebp-dev \
             libmcrypt-dev; \
     # cleanup
     rm -rf /var/lib/apt/lists/*
@@ -48,6 +49,7 @@ RUN set -eux; \
     docker-php-ext-configure gd \
             --enable-gd-native-ttf \
             --with-jpeg-dir=/usr/lib \
+            --with-webp-dir=/usr/lib \
             --with-freetype-dir=/usr/include/freetype2; \
     docker-php-ext-install gd; \
     php -r 'var_dump(gd_info());'
