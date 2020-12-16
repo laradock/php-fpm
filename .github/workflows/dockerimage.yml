@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: [56, 70, 71, 72, 73, 74]
+        php_version: [56, 70, 71, 72, 73, 74, 80]
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
