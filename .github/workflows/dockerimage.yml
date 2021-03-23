@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: master
+    branches: '**'
     tags: '**'
   schedule:
   - cron: 0 0 * * 6
@@ -27,7 +27,7 @@ jobs:
         docker image ls
 
     - name: Push image to Docker hub
-      if: success()
+      if: ${{ success() && (github.ref == 'refs/heads/master') }}
       env:
         PHP_VERSION: ${{ matrix.php_version }}
       run: |
