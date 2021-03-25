@@ -27,7 +27,7 @@ jobs:
         docker image ls
 
     - name: Push image to Docker hub
-      if: ${{ success() && (github.ref == 'refs/heads/master') }}
+      if: ${{ success() && (github.repository == 'laradock/php-fpm') && (github.ref == 'refs/heads/master') }}
       env:
         PHP_VERSION: ${{ matrix.php_version }}
       run: |
