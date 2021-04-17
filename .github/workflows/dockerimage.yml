@@ -15,23 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: [56, 70, 71, 72, 73, 74, 80]
+        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
     steps:
     - uses: actions/checkout@v2
     - name: Build the Docker image
-      env:
-        PHP_VERSION: ${{ matrix.php_version }}
       run: |
-        export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1}
-        docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:${{ env.TAG_PREFIX }}-${TAG_VERSION}      
+        docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:${{ env.TAG_PREFIX }}-${{ matrix.php_version }}
         docker image ls
 
     - name: Push image to Docker hub
       if: ${{ success() && (github.repository == 'laradock/php-fpm') && (github.ref == 'refs/heads/master') }}
-      env:
-        PHP_VERSION: ${{ matrix.php_version }}
       run: |
-        export TAG_VERSION=${PHP_VERSION:0:1}.${PHP_VERSION:1:1}
         echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin
-        docker push laradock/php-fpm:${{ env.TAG_PREFIX }}-${TAG_VERSION}
+        docker push laradock/php-fpm:${{ env.TAG_PREFIX }}-${{ matrix.php_version }}
         docker logout
