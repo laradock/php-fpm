@@ -17,15 +17,30 @@ jobs:
       matrix:
         php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: |
-        docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:${{ env.TAG_PREFIX }}-${{ matrix.php_version }}
-        docker image ls
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+        with:
+          platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v7,linux/arm/v6
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          file: Dockerfile-${{ matrix.php_version }}
+          push: false
+          tags: laradock/php-fpm:${{ matrix.php_version }}
+      - name: check
+        run: |
+          docker image ls
 
-    - name: Push image to Docker hub
-      if: ${{ success() && (github.repository == 'laradock/php-fpm') && (github.ref == 'refs/heads/master') }}
-      run: |
-        echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin
-        docker push laradock/php-fpm:${{ env.TAG_PREFIX }}-${{ matrix.php_version }}
-        docker logout
+      - name: Build the Docker image
+        run: |
+          docker build . --file Dockerfile-${{ matrix.php_version }} --tag laradock/php-fpm:${{ env.TAG_PREFIX }}-${{ matrix.php_version }}
+          docker image ls
+
+      - name: Push image to Docker hub
+        if: ${{ success() && (github.repository == 'laradock/php-fpm') && (github.ref == 'refs/heads/master') }}
+        run: |
+          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login -u ${{ secrets.DOCKER_HUB_USER }} --password-stdin
+          docker push laradock/php-fpm:${{ env.TAG_PREFIX }}-${{ matrix.php_version }}
+          docker logout
