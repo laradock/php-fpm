@@ -30,7 +30,7 @@ jobs:
             suffix=-${{ matrix.php_version }}
           tags: |
             type=ref,event=branch
-            type=ref,event=tag
+            type=semver,pattern={{version}}
             type=raw,value=latest
 
       - name: Set up QEMU
