@@ -29,6 +29,7 @@ jobs:
           flavor: |
             suffix=-${{ matrix.php_version }}
           tags: |
+            type=schedule,pattern={{date 'YYYYMMDD'}}
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=raw,value=latest
