@@ -7,9 +7,6 @@ on:
   schedule:
   - cron: 0 0 * * 6
 
-env:
-  TAG_PREFIX: $([ ${GITHUB_REF#refs/*/} == "master" ] && echo "latest" || echo ${GITHUB_REF#refs/*/})
-
 jobs:
   build:
     runs-on: ubuntu-latest
