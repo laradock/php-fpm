@@ -32,6 +32,7 @@ RUN set -eux; \
             libfreetype6-dev \
             libssl-dev \
             libwebp-dev \
+            libxpm-dev \
             libmcrypt-dev \
             libonig-dev; \
     rm -rf /var/lib/apt/lists/*
@@ -46,6 +47,7 @@ RUN set -eux; \
             --prefix=/usr \
             --with-jpeg \
             --with-webp \
+            --with-xpm \
             --with-freetype; \
     docker-php-ext-install gd; \
     php -r 'var_dump(gd_info());'
