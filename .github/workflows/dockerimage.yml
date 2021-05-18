@@ -7,9 +7,6 @@ on:
   schedule:
   - cron: 0 0 * * 6
 
-env:
-  TAG_PREFIX: $([ ${GITHUB_REF#refs/*/} == "master" ] && echo "latest" || echo ${GITHUB_REF#refs/*/})
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -54,7 +51,3 @@ jobs:
           platforms: linux/amd64,linux/arm64,linux/386,linux/arm/v7,linux/arm/v6
           push: ${{ (github.repository == 'laradock/php-fpm') && (github.ref == 'refs/heads/master') }}
           tags: ${{ steps.meta.outputs.tags }}
-
-      - name: check
-        run: |
-          docker image ls
