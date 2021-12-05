@@ -2,10 +2,10 @@ name: Docker Image CI
 
 on:
   push:
-    branches: "**"
-    tags: "**"
+    branches: '**'
+    tags: '**'
   schedule:
-    - cron: 0 0 * * 6
+  - cron: 0 0 * * 6
 
 jobs:
   build:
@@ -21,7 +21,8 @@ jobs:
         id: meta
         uses: crazy-max/ghaction-docker-meta@v2
         with:
-          images: laradock/php-fpm
+          images:
+            laradock/php-fpm
           flavor: |
             suffix=-${{ matrix.php_version }}
           tags: |
