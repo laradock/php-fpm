@@ -2,17 +2,17 @@ name: Docker Image CI
 
 on:
   push:
-    branches: '**'
-    tags: '**'
+    branches: "**"
+    tags: "**"
   schedule:
-  - cron: 0 0 * * 6
+    - cron: 0 0 * * 6
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0"]
+        php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -21,8 +21,7 @@ jobs:
         id: meta
         uses: crazy-max/ghaction-docker-meta@v2
         with:
-          images:
-            laradock/php-fpm
+          images: laradock/php-fpm
           flavor: |
             suffix=-${{ matrix.php_version }}
           tags: |
