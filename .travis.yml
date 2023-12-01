@@ -13,6 +13,8 @@ env:
     - PHP_VERSION=7.4
     - PHP_VERSION=8.0
     - PHP_VERSION=8.1
+    - PHP_VERSION=8.2
+    - PHP_VERSION=8.3
 
 # Installing a newer Docker version
 before_install:
