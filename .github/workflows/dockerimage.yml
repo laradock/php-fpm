@@ -50,7 +50,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           file: Dockerfile-${{ matrix.php_version }}
-          # skip linux/arm/v7, linux/arm/v6
-          platforms: linux/amd64, linux/386, linux/arm64
+          platforms: linux/amd64, linux/386, linux/arm/v7, linux/arm/v6, linux/arm64
           push: ${{ (github.event_name != 'pull_request') && (github.repository == 'laradock/php-fpm') && (github.ref == 'refs/heads/master') }}
           tags: ${{ steps.meta.outputs.tags }}
