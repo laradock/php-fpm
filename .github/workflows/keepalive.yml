@@ -2,8 +2,9 @@ name: Keepalive
 
 # Prevents GitHub from disabling the scheduled Docker publish workflows in this
 # low-traffic repo. GitHub disables cron workflows after 60 days of repo
-# inactivity; this pushes a tiny no-op commit only when the last commit is
+# inactivity; this pushes an empty no-op commit only when the last commit is
 # older than 45 days, resetting that timer. Runs weekly but commits rarely.
+# Vendored inline (no third-party actions) to satisfy the org Actions policy.
 
 on:
   schedule:
@@ -12,13 +13,23 @@ on:
 
 permissions:
   contents: write
-  actions: write
 
 jobs:
   keepalive:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: gautamkrishnar/keepalive-workflow@v2
-        with:
-          time_elapsed: 45
+      - name: Empty commit if repo idle >= 45 days
+        run: |
+          set -eu
+          days=$(( ( $(date +%s) - $(git log -1 --format=%ct) ) / 86400 ))
+          echo "Last commit was ${days} day(s) ago."
+          if [ "$days" -ge 45 ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "chore: keepalive (prevent 60-day workflow auto-disable)"
+            git push
+            echo "Pushed keepalive commit."
+          else
+            echo "Repo is fresh enough; nothing to do."
+          fi
