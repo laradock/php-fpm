@@ -1,9 +1,34 @@
-# Laradock's PHP-FPM Base Image
+<p align="center">
+  <img src="https://raw.githubusercontent.com/laradock/laradock/master/.github/home-page-images/laradock-logo.png" alt="Laradock Logo" width="320">
+</p>
 
-[![Docker Image CI](https://github.com/laradock/php-fpm/actions/workflows/dockerimage.yml/badge.svg)](https://github.com/laradock/php-fpm/actions/workflows/dockerimage.yml)
+<h1 align="center">Laradock PHP-FPM Image</h1>
 
-[Contribution Guide](http://laradock.io/contributing/#edit-base-image).
+<p align="center">
+  The PHP-FPM base image for <a href="https://github.com/laradock/laradock">Laradock</a> — the runtime that serves your PHP application.
+</p>
 
-[php-fpm Docker Hub Repository](https://hub.docker.com/r/laradock/php-fpm/)
+<p align="center">
+  <a href="https://github.com/laradock/php-fpm/actions/workflows/dockerimage.yml"><img src="https://github.com/laradock/php-fpm/actions/workflows/dockerimage.yml/badge.svg" alt="Docker Image CI"></a>
+  <a href="https://hub.docker.com/r/laradock/php-fpm"><img src="https://img.shields.io/docker/pulls/laradock/php-fpm.svg" alt="Docker Pulls"></a>
+  <a href="https://raw.githubusercontent.com/laradock/laradock/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+</p>
 
-[Laradock Github Repository](https://github.com/Laradock/laradock).
+---
+
+## About
+
+This is the base image for the Laradock **PHP-FPM** container — the PHP runtime that serves your application behind a web server such as Nginx or Apache.
+
+Images are built and published automatically to [Docker Hub](https://hub.docker.com/r/laradock/php-fpm) for each supported PHP version.
+
+## Links
+
+- 📖 [Documentation](https://laradock.io)
+- 📦 [Laradock main repository](https://github.com/laradock/laradock)
+- 🐳 [Docker Hub](https://hub.docker.com/r/laradock/php-fpm)
+- ✏️ [Editing base images](https://laradock.io/contributing/#edit-base-image)
+
+## License
+
+[MIT](https://github.com/laradock/laradock/blob/master/LICENSE)
