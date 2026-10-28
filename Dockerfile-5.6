@@ -19,7 +19,7 @@ ARG PHP_CVE_BACKPORT_SHA256=1c05926140e9e1d29ad258234cff0971dab4482f312e5713390f
 ARG PHP_CVE_BACKPORT_PATH=debian/patches/0261-Avoid-state-corruption-via-bailout.patch
 RUN set -eux; \
     sed -i 's/^deb /# deb /g' /etc/apt/sources.list; \
-    echo 'deb http://archive.debian.org/debian/ stretch main contrib non-free' >> /etc/apt/sources.list; \
+    echo 'deb https://archive.debian.org/debian/ stretch main contrib non-free' >> /etc/apt/sources.list; \
     apt-get -o Acquire::Check-Valid-Until=false update; \
     apt-get install -y --no-install-recommends --allow-unauthenticated \
         $PHPIZE_DEPS \
