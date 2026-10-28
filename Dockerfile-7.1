@@ -45,7 +45,8 @@ RUN set -eux; \
     patch -p1 --batch < /tmp/php-cve-prerequisite.patch; \
     tar -xJOf /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_PATH" > /tmp/php-cve.patch; \
     patch -p1 --batch < /tmp/php-cve.patch; \
-    eval "set -- $(php-config --configure-options)"; \n    ./configure "$@"; \
+    eval set -- "$(php-config --configure-options)"; \
+    ./configure "$@"; \
     make -j "$(nproc)"; \
     find -type f -name '*.a' -delete; \
     make install; \
