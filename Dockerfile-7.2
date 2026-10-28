@@ -11,6 +11,50 @@ LABEL maintainer="Mahmoud Zalt <mahmoud@zalt.me>"
 # Set Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Apply the maintained PHP source backport for CVE-2026-109618 and CVE-2026-109619.
+# These EOL releases have no upstream image refresh; the source archive and its SHA-256
+# make the approved patch deterministic and reviewable.
+ARG PHP_CVE_BACKPORT_ARCHIVE=https://ppa.launchpadcontent.net/ondrej/php/ubuntu/pool/main/p/php7.2/php7.2_7.2.34-66+ubuntu24.04.1+deb.sury.org+1.debian.tar.xz
+ARG PHP_CVE_BACKPORT_SHA256=c8fa4933ca2295793f5329ecf84cee7536306c4f2147db93afa12929738f0557
+ARG PHP_CVE_BACKPORT_PATH=debian/patches/0159-Avoid-state-corruption-via-bailout.patch
+RUN set -eux; \
+    sed -i -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
+        -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' \
+        -e '/-updates/d' /etc/apt/sources.list; \
+    apt-get -o Acquire::Check-Valid-Until=false update; \
+    apt-get install -y --no-install-recommends \
+        $PHPIZE_DEPS \
+        curl \
+        patch \
+        xz-utils \
+        libargon2-dev \
+        libcurl4-openssl-dev \
+        libedit-dev \
+        libsodium-dev \
+        libsqlite3-dev \
+        libssl-dev \
+        libxml2-dev \
+        zlib1g-dev \
+        ; \
+    export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS"; \
+    docker-php-source extract; \
+    cd /usr/src/php; \
+    debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \
+    if [ ! -d /usr/include/curl ] && [ ! -e /usr/local/include/curl ] && [ ! -L /usr/local/include/curl ]; then ln -sT "/usr/include/$debMultiarch/curl" /usr/local/include/curl; fi; \
+    curl -fsSL -o /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_ARCHIVE"; \
+    echo "$PHP_CVE_BACKPORT_SHA256  /tmp/php-cve-backport.debian.tar.xz" | sha256sum -c -; \
+    tar -xJOf /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_PATH" > /tmp/php-cve.patch; \
+    patch -p1 --batch < /tmp/php-cve.patch; \
+    ./configure $(php-config --configure-options); \
+    make -j "$(nproc)"; \
+    find -type f -name '*.a' -delete; \
+    make install; \
+    make clean; \
+    cd /; \
+    docker-php-source delete; \
+    rm -f /tmp/php-cve-backport.debian.tar.xz /tmp/php-cve.patch; \
+    php --version
+
 #
 #--------------------------------------------------------------------------
 # Software's Installation
