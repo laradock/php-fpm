@@ -11,6 +11,48 @@ LABEL maintainer="Mahmoud Zalt <mahmoud@zalt.me>"
 # Set Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Apply the maintained PHP source backport for CVE-2026-109618 and CVE-2026-109619.
+# These EOL releases have no upstream image refresh; the source archive and its SHA-256
+# make the approved patch deterministic and reviewable.
+ARG PHP_CVE_BACKPORT_ARCHIVE=https://ppa.launchpadcontent.net/ondrej/php/ubuntu/pool/main/p/php5.6/php5.6_5.6.40-105+ubuntu24.04.1+deb.sury.org+1.debian.tar.xz
+ARG PHP_CVE_BACKPORT_SHA256=1c05926140e9e1d29ad258234cff0971dab4482f312e5713390fa2a435008aba
+ARG PHP_CVE_BACKPORT_PATH=debian/patches/0261-Avoid-state-corruption-via-bailout.patch
+RUN set -eux; \
+    sed -i 's/^deb /# deb /g' /etc/apt/sources.list; \
+    echo 'deb http://archive.debian.org/debian/ stretch main contrib non-free' >> /etc/apt/sources.list; \
+    apt-get -o Acquire::Check-Valid-Until=false update; \
+    apt-get install -y --no-install-recommends --allow-unauthenticated \
+        $PHPIZE_DEPS \
+        curl \
+        patch \
+        xz-utils \
+        libcurl4-openssl-dev \
+        libedit-dev \
+        libsqlite3-dev \
+        libssl1.0-dev \
+        libxml2-dev \
+        zlib1g-dev \
+        ; \
+    export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS"; \
+    docker-php-source extract; \
+    cd /usr/src/php; \
+    debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \
+    if [ ! -d /usr/include/curl ] && [ ! -e /usr/local/include/curl ] && [ ! -L /usr/local/include/curl ]; then ln -sT "/usr/include/$debMultiarch/curl" /usr/local/include/curl; fi; \
+    curl -fsSL -o /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_ARCHIVE"; \
+    echo "$PHP_CVE_BACKPORT_SHA256  /tmp/php-cve-backport.debian.tar.xz" | sha256sum -c -; \
+    tar -xJOf /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_PATH" > /tmp/php-cve.patch; \
+    patch -p1 --batch < /tmp/php-cve.patch; \
+    PHP_CONFIGURE_OPTIONS="$(php-config --configure-options | sed -e 's/ CFLAGS=.*$//' -e 's/ build_alias=[^ ]*//g')"; \
+    ./configure $PHP_CONFIGURE_OPTIONS; \
+    make -j "$(nproc)"; \
+    find -type f -name '*.a' -delete; \
+    make install; \
+    make clean; \
+    cd /; \
+    docker-php-source delete; \
+    rm -f /tmp/php-cve-backport.debian.tar.xz /tmp/php-cve.patch; \
+    php --version
+
 #
 #--------------------------------------------------------------------------
 # Software's Installation
@@ -18,15 +60,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 #
 # Installing tools and PHP extentions using "apt", "docker-php", "pecl",
 #
-
 # Install "curl", "libmemcached-dev", "libpq-dev", "libjpeg-dev",
 #         "libpng12-dev", "libfreetype6-dev", "libssl-dev", "libmcrypt-dev",
 RUN set -eux; \
     sed -i 's/^deb /# deb /g' /etc/apt/sources.list; \
     echo 'deb http://archive.debian.org/debian/ stretch main contrib non-free' >> /etc/apt/sources.list; \
-    apt-get update; \
-    apt-get upgrade -y; \
-    apt-get install -y --no-install-recommends \
+    apt-get -o Acquire::Check-Valid-Until=false update; \
+    apt-get upgrade -y --allow-unauthenticated; \
+    apt-get install -y --no-install-recommends --allow-unauthenticated \
             curl \
             libmemcached-dev \
             libz-dev \
