@@ -42,7 +42,8 @@ RUN set -eux; \
     echo "$PHP_CVE_BACKPORT_SHA256  /tmp/php-cve-backport.debian.tar.xz" | sha256sum -c -; \
     tar -xJOf /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_PATH" > /tmp/php-cve.patch; \
     patch -p1 --batch < /tmp/php-cve.patch; \
-    ./configure $(php-config --configure-options); \
+    eval "set -- $(php-config --configure-options)"; \
+    ./configure "$@"; \
     make -j "$(nproc)"; \
     find -type f -name '*.a' -delete; \
     make install; \
@@ -59,7 +60,6 @@ RUN set -eux; \
 #
 # Installing tools and PHP extentions using "apt", "docker-php", "pecl",
 #
-
 # Install "curl", "libmemcached-dev", "libpq-dev", "libjpeg-dev",
 #         "libpng12-dev", "libfreetype6-dev", "libssl-dev", "libmcrypt-dev",
 RUN set -eux; \
