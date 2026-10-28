@@ -4,10 +4,47 @@
 #--------------------------------------------------------------------------
 #
 
-FROM php:8.1-fpm
+FROM php:8.1.34-fpm
 
 # Set Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Rebuild the frozen 8.1.34 base with PHP's signed EOL mitigation for
+# CVE-2026-109618 and CVE-2026-109619. PHP 8.1 has no upstream release fix.
+ARG PHP_CVE_BACKPORT_COMMIT=1d7dec178a094e6e75b229ce22754045f8c6070a
+ARG PHP_CVE_BACKPORT_SHA256=c85ad0fddcbff7f2318617eeaa54d271135463b5bf70a01228447e3ed78de96e
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends \
+        $PHPIZE_DEPS \
+        curl \
+        patch \
+        libargon2-dev \
+        libcurl4-openssl-dev \
+        libonig-dev \
+        libreadline-dev \
+        libsodium-dev \
+        libsqlite3-dev \
+        libssl-dev \
+        libxml2-dev \
+        zlib1g-dev; \
+    export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS"; \
+    docker-php-source extract; \
+    cd /usr/src/php; \
+    debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \
+    if [ ! -d /usr/include/curl ]; then ln -sT "/usr/include/$debMultiarch/curl" /usr/local/include/curl; fi; \
+    curl -fsSL -o /tmp/php-cve.patch "https://github.com/php/php-src/commit/${PHP_CVE_BACKPORT_COMMIT}.patch"; \
+    echo "${PHP_CVE_BACKPORT_SHA256}  /tmp/php-cve.patch" | sha256sum -c -; \
+    patch -p1 --batch < /tmp/php-cve.patch; \
+    ./configure $(php-config --configure-options); \
+    make -j "$(nproc)"; \
+    find -type f -name '*.a' -delete; \
+    make install; \
+    make clean; \
+    cd /; \
+    docker-php-source delete; \
+    rm -f /tmp/php-cve.patch; \
+    php --version
 
 #
 #--------------------------------------------------------------------------
@@ -36,6 +73,7 @@ RUN set -eux; \
             libmcrypt-dev \
             libonig-dev; \
     rm -rf /var/lib/apt/lists/*
+
 
 RUN set -eux; \
     # Install the PHP pdo_mysql extention
