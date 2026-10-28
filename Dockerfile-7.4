@@ -3,11 +3,51 @@
 # Image Setup
 #--------------------------------------------------------------------------
 #
-
 FROM php:7.4-fpm
 
 # Set Environment Variables
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Rebuild the frozen 7.4.33 base with PHP's signed EOL mitigation for
+# CVE-2026-109618 and CVE-2026-109619. PHP 7.4 has no upstream release fix.
+ARG PHP_CVE_BACKPORT_COMMIT=712e60f9edfd03f0960fc4fc3c2c375f42b90aa2
+ARG PHP_CVE_BACKPORT_SHA256=5fe57ca6ee96d59b36c6e0ca842843c50884f177bef1e85234cf669b577f5e48
+RUN set -eux; \
+    sed -i \
+        -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
+        -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' \
+        -e '/bullseye-updates/d' /etc/apt/sources.list; \
+    apt-get -o Acquire::Check-Valid-Until=false update; \
+    apt-get install -y --no-install-recommends \
+        $PHPIZE_DEPS \
+        curl \
+        patch \
+        libargon2-dev \
+        libcurl4-openssl-dev \
+        libonig-dev \
+        libreadline-dev \
+        libsodium-dev \
+        libsqlite3-dev \
+        libssl-dev \
+        libxml2-dev \
+        zlib1g-dev; \
+    export CFLAGS="$PHP_CFLAGS" CPPFLAGS="$PHP_CPPFLAGS" LDFLAGS="$PHP_LDFLAGS"; \
+    docker-php-source extract; \
+    cd /usr/src/php; \
+    debMultiarch="$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"; \
+    if [ ! -d /usr/include/curl ] && [ ! -e /usr/local/include/curl ] && [ ! -L /usr/local/include/curl ]; then ln -sT "/usr/include/$debMultiarch/curl" /usr/local/include/curl; fi; \
+    curl -fsSL -o /tmp/php-cve.patch "https://github.com/php/php-src/commit/${PHP_CVE_BACKPORT_COMMIT}.patch"; \
+    echo "${PHP_CVE_BACKPORT_SHA256}  /tmp/php-cve.patch" | sha256sum -c -; \
+    patch -p1 --batch < /tmp/php-cve.patch; \
+    ./configure $(php-config --configure-options); \
+    make -j "$(nproc)"; \
+    find -type f -name '*.a' -delete; \
+    make install; \
+    make clean; \
+    cd /; \
+    docker-php-source delete; \
+    rm -f /tmp/php-cve.patch; \
+    php --version
 
 #
 #--------------------------------------------------------------------------
@@ -16,11 +56,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 #
 # Installing tools and PHP extentions using "apt", "docker-php", "pecl",
 #
-
 # Install "curl", "libmemcached-dev", "libpq-dev", "libjpeg-dev",
 #         "libpng-dev", "libfreetype6-dev", "libssl-dev", "libmcrypt-dev",
 RUN set -eux; \
-    apt-get update; \
+    apt-get -o Acquire::Check-Valid-Until=false update; \
     apt-get upgrade -y; \
     apt-get install -y --no-install-recommends \
             curl \
@@ -35,13 +74,12 @@ RUN set -eux; \
             libmcrypt-dev \
             libonig-dev; \
     rm -rf /var/lib/apt/lists/*
-
 RUN set -eux; \
     # Install the PHP pdo_mysql extention
     docker-php-ext-install pdo_mysql; \
     # Install the PHP pdo_pgsql extention
     docker-php-ext-install pdo_pgsql; \
-    # Install the PHP gd library
+    # Installl the PHP gd library
     docker-php-ext-configure gd \
             --prefix=/usr \
             --with-jpeg \
