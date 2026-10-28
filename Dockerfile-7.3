@@ -17,6 +17,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG PHP_CVE_BACKPORT_ARCHIVE=https://ppa.launchpadcontent.net/ondrej/php/ubuntu/pool/main/p/php7.3/php7.3_7.3.33-35+ubuntu24.04.1+deb.sury.org+1.debian.tar.xz
 ARG PHP_CVE_BACKPORT_SHA256=c30aa5f0c4043a4c50d8bd407d3bbe2bf1c14d8527824cbc01073f917363c02b
 ARG PHP_CVE_BACKPORT_PATH=debian/patches/0139-Avoid-state-corruption-via-bailout.patch
+ARG PHP_CVE_BACKPORT_PREREQUISITE=debian/patches/0107-backport-ZSTR_MAX_LEN.patch
 RUN set -eux; \
     sed -i -e 's|deb.debian.org/debian|archive.debian.org/debian|g' \
         -e 's|security.debian.org/debian-security|archive.debian.org/debian-security|g' \
@@ -43,6 +44,8 @@ RUN set -eux; \
     if [ ! -d /usr/include/curl ] && [ ! -e /usr/local/include/curl ] && [ ! -L /usr/local/include/curl ]; then ln -sT "/usr/include/$debMultiarch/curl" /usr/local/include/curl; fi; \
     curl -fsSL -o /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_ARCHIVE"; \
     echo "$PHP_CVE_BACKPORT_SHA256  /tmp/php-cve-backport.debian.tar.xz" | sha256sum -c -; \
+    tar -xJOf /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_PREREQUISITE" > /tmp/php-cve-prerequisite.patch; \
+    patch -p1 --batch < /tmp/php-cve-prerequisite.patch; \
     tar -xJOf /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_PATH" > /tmp/php-cve.patch; \
     patch -p1 --batch < /tmp/php-cve.patch; \
     ./configure $(php-config --configure-options); \
@@ -52,7 +55,7 @@ RUN set -eux; \
     make clean; \
     cd /; \
     docker-php-source delete; \
-    rm -f /tmp/php-cve-backport.debian.tar.xz /tmp/php-cve.patch; \
+    rm -f /tmp/php-cve-backport.debian.tar.xz /tmp/php-cve-prerequisite.patch /tmp/php-cve.patch; \
     php --version
 
 #
