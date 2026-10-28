@@ -4,6 +4,11 @@ on:
   push:
     branches: '**'
     tags: '**'
+  pull_request:
+    paths:
+      - 'Dockerfile-*'
+      - '.github/workflows/dockerimage_without_arm.yml'
+  workflow_dispatch:
   schedule:
     - cron: 0 0 * * 6
 
