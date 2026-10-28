@@ -42,8 +42,8 @@ RUN set -eux; \
     echo "$PHP_CVE_BACKPORT_SHA256  /tmp/php-cve-backport.debian.tar.xz" | sha256sum -c -; \
     tar -xJOf /tmp/php-cve-backport.debian.tar.xz "$PHP_CVE_BACKPORT_PATH" > /tmp/php-cve.patch; \
     patch -p1 --batch < /tmp/php-cve.patch; \
-    eval set -- "$(php-config --configure-options)"; \
-    ./configure "$@"; \
+    PHP_CONFIGURE_OPTIONS="$(php-config --configure-options | sed -e 's/ CFLAGS=.*$//' -e 's/ build_alias=[^ ]*//g')"; \
+    ./configure $PHP_CONFIGURE_OPTIONS; \
     make -j "$(nproc)"; \
     find -type f -name '*.a' -delete; \
     make install; \
