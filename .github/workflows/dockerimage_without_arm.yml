@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ contains(fromJSON('["7.3","7.4"]'), matrix.php_version) && 'ubuntu-24.04-arm' || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
@@ -57,6 +57,6 @@ jobs:
           file: Dockerfile-${{ matrix.php_version }}
           # platforms: linux/amd64, linux/386, linux/arm64, linux/arm/v7, linux/arm/v6
           # Non-release validation stays fast; master publishes every supported architecture.
-          platforms: ${{ github.ref == 'refs/heads/master' && 'linux/amd64,linux/386,linux/arm64' || 'linux/amd64' }}
+          platforms: ${{ (github.ref == 'refs/heads/master' || contains(fromJSON('["7.3","7.4"]'), matrix.php_version)) && 'linux/amd64,linux/386,linux/arm64' || 'linux/amd64' }}
           push: ${{ (github.event_name != 'pull_request') && (github.repository == 'laradock/php-fpm') && (github.ref == 'refs/heads/master') }}
           tags: ${{ steps.meta.outputs.tags }}
